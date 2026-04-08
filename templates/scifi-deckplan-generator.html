@@ -1,0 +1,304 @@
+<div class="sdpg-app">
+  <section class="sdpg-section">
+    <h2>Generation</h2>
+    <div class="sdpg-grid sdpg-grid-2">
+      <label>
+        <span>Generation Mode</span>
+        <select name="mode">
+          {{#each modes as |mode|}}
+          <option value="{{mode.value}}" {{#if mode.selected}}selected{{/if}}>{{mode.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Map Profile</span>
+        <select name="profile">
+          {{#each profiles as |profile|}}
+          <option value="{{profile.value}}" {{#if profile.selected}}selected{{/if}}>{{profile.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Map Name</span>
+        <input type="text" name="shipName" value="{{defaults.shipName}}" />
+      </label>
+      <label>
+        <span>Seed</span>
+        <div class="sdpg-seed-row">
+          <input type="text" name="seed" value="{{defaults.seed}}" />
+          <button type="button" class="sdpg-reroll-seed" title="Generate new random seed">🎲</button>
+        </div>
+      </label>
+      <label>
+        <span>Deck Width</span>
+        <input type="number" name="columns" min="10" max="80" value="{{defaults.columns}}" />
+      </label>
+      <label>
+        <span>Deck Height</span>
+        <input type="number" name="rows" min="6" max="50" value="{{defaults.rows}}" />
+      </label>
+      <label>
+        <span>Grid Size</span>
+        <select name="gridSize">
+          {{#each gridSizes as |grid|}}
+          <option value="{{grid.value}}" {{#if grid.selected}}selected{{/if}}>{{grid.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Grid Mode</span>
+        <select name="gridMode">
+          {{#each gridModes as |grid|}}
+          <option value="{{grid.value}}" {{#if grid.selected}}selected{{/if}}>{{grid.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Decks</span>
+        <input type="number" name="decks" min="1" max="8" value="{{defaults.decks}}" />
+      </label>
+      <label>
+        <span>Theme</span>
+        <select name="theme">
+          {{#each themes as |theme|}}
+          <option value="{{theme.value}}" {{#if theme.selected}}selected{{/if}}>{{theme.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Hull / Footprint</span>
+        <select name="hullShape">
+          {{#each hullShapes as |shape|}}
+          <option value="{{shape.value}}" {{#if shape.selected}}selected{{/if}}>{{shape.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="building" class="sdpg-mode-field">
+        <span>Building Type</span>
+        <select name="buildingSubtype">
+          {{#each buildingSubtypes as |subtype|}}
+          <option value="{{subtype.value}}" {{#if subtype.selected}}selected{{/if}}>{{subtype.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Coordinate Labels</span>
+        <select name="coordinates">
+          {{#each coordinates as |coord|}}
+          <option value="{{coord.value}}" {{#if coord.selected}}selected{{/if}}>{{coord.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Room Count</span>
+        <input type="number" name="roomCount" min="6" max="40" value="{{defaults.roomCount}}" />
+      </label>
+      <label data-modes="bsp corridor dungeon building geomorph" class="sdpg-mode-field">
+        <span>Corner Style</span>
+        <select name="cornerStyle">
+          {{#each cornerStyles as |style|}}
+          <option value="{{style.value}}" {{#if style.selected}}selected{{/if}}>{{style.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="bsp corridor dungeon building geomorph" class="sdpg-mode-field">
+        <span>Chamfer Size</span>
+        <select name="chamferSize">
+          {{#each chamferSizes as |size|}}
+          <option value="{{size.value}}" {{#if size.selected}}selected{{/if}}>{{size.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="bsp corridor building" class="sdpg-mode-field">
+        <span>Min Room Size</span>
+        <input type="number" name="minRoomSize" min="2" max="8" value="{{defaults.minRoomSize}}" />
+      </label>
+      <label data-modes="bsp corridor building" class="sdpg-mode-field">
+        <span>Max Room Size</span>
+        <input type="number" name="maxRoomSize" min="4" max="12" value="{{defaults.maxRoomSize}}" />
+      </label>
+      <label data-modes="bsp building" class="sdpg-mode-field">
+        <span>Split Bias</span>
+        <select name="splitBias">
+          {{#each splitBiases as |bias|}}
+          <option value="{{bias.value}}" {{#if bias.selected}}selected{{/if}}>{{bias.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="bsp building" class="sdpg-mode-field">
+        <span>Corridor Style</span>
+        <select name="corridorStyle">
+          {{#each corridorStyles as |style|}}
+          <option value="{{style.value}}" {{#if style.selected}}selected{{/if}}>{{style.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="corridor dungeon" class="sdpg-mode-field">
+        <span>Loop Factor %</span>
+        <input type="number" name="loopFactor" min="0" max="100" value="{{defaults.loopFactor}}" />
+      </label>
+      <label data-modes="corridor dungeon" class="sdpg-mode-field">
+        <span>Corridor Width</span>
+        <select name="corridorWidth">
+          {{#each corridorWidths as |width|}}
+          <option value="{{width.value}}" {{#if width.selected}}selected{{/if}}>{{width.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="bsp corridor dungeon building" class="sdpg-mode-field">
+        <span>Secret Doors</span>
+        <select name="secretDoorDensity">
+          {{#each secretDoorDensities as |d|}}
+          <option value="{{d.value}}" {{#if d.selected}}selected{{/if}}>{{d.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-modes="bsp corridor" class="sdpg-mode-field">
+        <span>Maintenance Shafts</span>
+        <select name="maintenanceShaftDensity">
+          {{#each maintenanceShaftDensities as |d|}}
+          <option value="{{d.value}}" {{#if d.selected}}selected{{/if}}>{{d.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <input type="checkbox" name="placeRegions" {{#if defaults.placeRegions}}checked{{/if}} />
+        <span>Place Scene Regions (v13)</span>
+      </label>
+      <label data-modes="bsp corridor dungeon building" class="sdpg-mode-field">
+        <span>Furniture</span>
+        <select name="furnitureDensity">
+          {{#each furnitureDensities as |density|}}
+          <option value="{{density.value}}" {{#if density.selected}}selected{{/if}}>{{density.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Mission Brief Style</span>
+        <select name="missionTemplate">
+          {{#each missionTemplates as |template|}}
+          <option value="{{template.value}}" {{#if template.selected}}selected{{/if}}>{{template.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Encounter Faction</span>
+        <select name="encounterFaction">
+          {{#each encounterFactions as |faction|}}
+          <option value="{{faction.value}}" {{#if faction.selected}}selected{{/if}}>{{faction.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Encounter Density</span>
+        <select name="encounterDensity">
+          {{#each encounterDensities as |density|}}
+          <option value="{{density.value}}" {{#if density.selected}}selected{{/if}}>{{density.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Encounter Actor Pack</span>
+        <select name="encounterPack">
+          {{#each actorPacks as |pack|}}
+          <option value="{{pack.value}}" {{#if pack.selected}}selected{{/if}}>{{pack.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Room Population Pack</span>
+        <select name="roomPopulationPack">
+          {{#each roomPopulationPacks as |pack|}}
+          <option value="{{pack.value}}" {{#if pack.selected}}selected{{/if}}>{{pack.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Map Age</span>
+        <input type="range" name="mapAge" min="0" max="100" step="5" value="{{defaults.mapAge}}" />
+      </label>
+      <label>
+        <span>Faction Territory</span>
+        <select name="factionPreset">
+          {{#each factionPresets as |preset|}}
+          <option value="{{preset.value}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Reroll Target</span>
+        <select name="regenerateTarget">
+          {{#each regenerateTargets as |target|}}
+          <option value="{{target.value}}" {{#if target.selected}}selected{{/if}}>{{target.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Target Scene Folder</span>
+        <select name="targetSceneFolder">
+          {{#each sceneFolders as |folder|}}
+          <option value="{{folder.value}}" {{#if folder.selected}}selected{{/if}}>{{folder.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+    <div class="sdpg-checks">
+      <label><input type="checkbox" name="compactPrintMode" {{#if defaults.compactPrintMode}}checked{{/if}} /> One-page compact print mode</label>
+      <label><input type="checkbox" name="circularSpecialRooms" {{#if defaults.circularSpecialRooms}}checked{{/if}} /> Circular special rooms</label>
+      <label><input type="checkbox" name="softRoomOutlines" {{#if defaults.softRoomOutlines}}checked{{/if}} /> Soft room outlines</label>
+      <label><input type="checkbox" name="activateScenes" {{#if defaults.activateScenes}}checked{{/if}} /> Activate final scene</label>
+      <label><input type="checkbox" name="regenerateInPlace" {{#if defaults.regenerateInPlace}}checked{{/if}} /> Regenerate viewed scene in place (single deck)</label>
+      <label><input type="checkbox" name="showRoomLabels" {{#if defaults.showRoomLabels}}checked{{/if}} /> Add room labels</label>
+      <label><input type="checkbox" name="placeLights" {{#if defaults.placeLights}}checked{{/if}} /> Place ambient lights</label>
+      <label><input type="checkbox" name="generateMissionBrief" {{#if defaults.generateMissionBrief}}checked{{/if}} /> Create mission brief journal</label>
+      <label><input type="checkbox" name="generateMissionPacket" {{#if defaults.generateMissionPacket}}checked{{/if}} /> Export mission packet handout</label>
+      <label><input type="checkbox" name="seedEncounters" {{#if defaults.seedEncounters}}checked{{/if}} /> Seed hidden encounter tokens</label>
+      <label><input type="checkbox" name="populateRoomsFromCompendium" {{#if defaults.populateRoomsFromCompendium}}checked{{/if}} /> Populate matching rooms from compendium</label>
+      <label><input type="checkbox" name="createGmOverlay" {{#if defaults.createGmOverlay}}checked{{/if}} /> Create GM-only overlay tile</label>
+      <label><input type="checkbox" name="createRoomNotes" {{#if defaults.createRoomNotes}}checked{{/if}} /> Create GM-only room / zone notes</label>
+      <label><input type="checkbox" name="exportMetadataJson" {{#if defaults.exportMetadataJson}}checked{{/if}} /> Export metadata JSON</label>
+      <label data-modes="bsp corridor" class="sdpg-mode-field"><input type="checkbox" name="exportMothershipJson" {{#if defaults.exportMothershipJson}}checked{{/if}} /> Export Mothership viewer JSON</label>
+    </div>
+    <div class="sdpg-actions sdpg-actions-secondary">
+      <select name="savedPreset">
+        {{#each savedPresets as |preset|}}
+        <option value="{{preset.value}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}}</option>
+        {{/each}}
+      </select>
+      <button type="button" data-action="load-saved-preset"><i class="fas fa-folder-open"></i> Load Preset</button>
+      <button type="button" data-action="save-current-preset"><i class="fas fa-save"></i> Save Preset</button>
+      <button type="button" data-action="delete-saved-preset"><i class="fas fa-trash"></i> Delete Preset</button>
+    </div>
+    <div class="sdpg-actions">
+      <button type="button" data-action="apply-profile"><i class="fas fa-sliders"></i> Apply Profile</button>
+      <button type="button" data-action="preview-map"><i class="fas fa-eye"></i> Preview</button>
+      <button type="button" data-action="export-png"><i class="fas fa-image"></i> Save PNG</button>
+      <button type="button" data-action="share-seed"><i class="fas fa-share-alt"></i> Share Seed</button>
+      <button type="button" data-action="import-seed"><i class="fas fa-file-import"></i> Import Seed</button>
+      <button type="submit"><i class="fas fa-rocket"></i> Generate Map</button>
+    </div>
+  </section>
+
+  <section class="sdpg-section">
+    <h2>Preview</h2>
+    <div class="sdpg-preview" data-preview-root>
+      <div class="sdpg-preview-frame">
+        <img alt="Map preview" data-preview-image />
+      </div>
+      <div class="sdpg-preview-summary" data-preview-summary>Preview will appear here.</div>
+    </div>
+  </section>
+
+  <section class="sdpg-section">
+    <h2>Profiles</h2>
+    <div class="sdpg-preset-list">
+      {{#each profileCards as |profile|}}
+      <div class="sdpg-preset-card">
+        <strong>{{profile.label}}</strong>
+        <em>{{profile.mode}}</em>
+        <span>{{profile.summary}}</span>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+</div>

@@ -1,0 +1,158 @@
+{
+  "rooms": [
+    { "key": "bridge", "label": "BRIDGE", "placement": "bow", "weight": 1, "unique": true, "minSize": [4, 4] },
+    { "key": "engineering", "label": "ENGINEERING", "placement": "stern", "weight": 1, "unique": true, "minSize": [4, 4] },
+    { "key": "cargo", "label": "CARGO BAY", "placement": "any", "weight": 8, "unique": false, "minSize": [3, 3], "numbered": true },
+    { "key": "crew-quarters", "label": "CREW QUARTERS", "placement": "any", "weight": 10, "unique": false, "minSize": [2, 3], "numbered": true },
+    { "key": "medical", "label": "MEDICAL BAY", "placement": "any", "weight": 3, "unique": true, "minSize": [3, 3] },
+    { "key": "armory", "label": "ARMOURY", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 3] },
+    { "key": "brig", "label": "BRIG", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 2] },
+    { "key": "airlock", "label": "AIRLOCK", "placement": "edge", "weight": 4, "unique": false, "minSize": [2, 2], "numbered": true },
+    { "key": "mess-hall", "label": "MESS HALL", "placement": "any", "weight": 3, "unique": true, "minSize": [3, 3] },
+    { "key": "ops", "label": "OPS", "placement": "any", "weight": 3, "unique": true, "minSize": [3, 3] },
+    { "key": "comms", "label": "COMMS", "placement": "bow", "weight": 2, "unique": true, "minSize": [2, 2] },
+    { "key": "lab", "label": "RESEARCH LAB", "placement": "any", "weight": 3, "unique": false, "minSize": [3, 3], "numbered": true },
+    { "key": "reactor", "label": "REACTOR CORE", "placement": "stern", "weight": 1, "unique": true, "minSize": [3, 3] },
+    { "key": "escape-pods", "label": "ESCAPE PODS", "placement": "edge", "weight": 2, "unique": true, "minSize": [2, 3] },
+    { "key": "weapon-bay", "label": "WEAPON BAY", "placement": "stern", "weight": 1, "unique": true, "minSize": [3, 3] },
+    { "key": "navigation", "label": "NAVIGATION", "placement": "bow", "weight": 2, "unique": true, "minSize": [2, 2] },
+    { "key": "fuel-bay", "label": "FUEL STORAGE", "placement": "stern", "weight": 2, "unique": true, "minSize": [2, 3] },
+    { "key": "storage", "label": "STORAGE", "placement": "any", "weight": 10, "unique": false, "minSize": [2, 2], "numbered": true },
+    { "key": "docking-bay", "label": "DOCKING BAY", "placement": "bow", "weight": 2, "unique": true, "minSize": [5, 4] },
+    { "key": "life-support", "label": "LIFE SUPPORT", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+    { "key": "maintenance", "label": "MAINTENANCE", "placement": "any", "weight": 5, "unique": false, "minSize": [2, 2], "numbered": true },
+    { "key": "observation", "label": "OBSERVATION", "placement": "bow", "weight": 2, "unique": true, "minSize": [3, 3] },
+    { "key": "void", "label": "VOID", "placement": "any", "weight": 1, "unique": false, "minSize": [2, 2] }
+  ],
+  "sla_overrides": {
+    "bridge": { "label": "COMMAND CENTRE" },
+    "armory": { "label": "ORDNANCE LOCKER" },
+    "brig": { "label": "HOLDING CELLS" },
+    "crew-quarters": { "label": "OPERATIVE BARRACKS" },
+    "lab": { "label": "EBB LAB" },
+    "escape-pods": { "label": "EMERGENCY BAYS" },
+    "navigation": { "label": "NAV STATION" }
+  },
+  "dungeon": {
+    "rooms": [
+      { "key": "entrance", "label": "ENTRANCE", "placement": "edge", "weight": 1, "unique": true, "minSize": [3, 3], "doorType": "none" },
+      { "key": "boss-chamber", "label": "BOSS CHAMBER", "placement": "far", "weight": 1, "unique": true, "minSize": [5, 5], "doorType": "locked" },
+      { "key": "throne-room", "label": "THRONE ROOM", "placement": "far", "weight": 1, "unique": true, "minSize": [4, 4], "doorType": "locked" },
+      { "key": "vault", "label": "VAULT", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3], "doorType": "locked" },
+      { "key": "shrine", "label": "SHRINE", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3], "doorType": "none" },
+      { "key": "torture", "label": "TORTURE CHAMBER", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3], "doorType": "locked" },
+      { "key": "barracks", "label": "BARRACKS", "placement": "any", "weight": 4, "unique": false, "minSize": [3, 3], "numbered": true },
+      { "key": "guardroom", "label": "GUARD ROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 3], "numbered": true, "doorType": "none" },
+      { "key": "prison", "label": "PRISON CELLS", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3], "doorType": "locked" },
+      { "key": "armoury", "label": "ARMOURY", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 3], "doorType": "locked" },
+      { "key": "store", "label": "STOREROOM", "placement": "any", "weight": 6, "unique": false, "minSize": [2, 2], "numbered": true },
+      { "key": "library", "label": "LIBRARY", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+      { "key": "laboratory", "label": "LABORATORY", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+      { "key": "trophy-room", "label": "TROPHY ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3] },
+      { "key": "alchemy", "label": "ALCHEMIST WORKSHOP", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+      { "key": "forge", "label": "FORGE", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3] },
+      { "key": "antechamber", "label": "ANTECHAMBER", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2], "numbered": true },
+      { "key": "crypt", "label": "CRYPT", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2], "numbered": true },
+      { "key": "ritual-room", "label": "RITUAL CHAMBER", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+      { "key": "quarters", "label": "QUARTERS", "placement": "any", "weight": 5, "unique": false, "minSize": [2, 2], "numbered": true },
+      { "key": "cistern", "label": "CISTERN", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3] },
+      { "key": "collapsed", "label": "COLLAPSED HALL", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2] },
+      { "key": "trap-room", "label": "TRAP ROOM", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] },
+      { "key": "void", "label": "", "placement": "any", "weight": 4, "unique": false, "minSize": [2, 2] }
+    ]
+  },
+  "building": {
+    "subtypes": {
+      "office": {
+        "rooms": [
+          { "key": "lobby", "label": "LOBBY", "placement": "entrance", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "office", "label": "OFFICE", "placement": "any", "weight": 10, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "meeting", "label": "MEETING ROOM", "placement": "any", "weight": 4, "unique": false, "minSize": [3, 3], "numbered": true },
+          { "key": "server", "label": "SERVER ROOM", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 2], "doorType": "locked" },
+          { "key": "reception", "label": "RECEPTION", "placement": "entrance", "weight": 2, "unique": true, "minSize": [2, 3] },
+          { "key": "breakroom", "label": "BREAK ROOM", "placement": "any", "weight": 3, "unique": true, "minSize": [2, 2] },
+          { "key": "bathroom", "label": "BATHROOM", "placement": "any", "weight": 4, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "storage", "label": "STORAGE", "placement": "any", "weight": 4, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "stairwell", "label": "STAIRWELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "exec-office", "label": "EXECUTIVE SUITE", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3], "doorType": "locked" },
+          { "key": "void", "label": "", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] }
+        ]
+      },
+      "warehouse": {
+        "rooms": [
+          { "key": "loading", "label": "LOADING DOCK", "placement": "entrance", "weight": 1, "unique": true, "minSize": [4, 3] },
+          { "key": "warehouse", "label": "WAREHOUSE FLOOR", "placement": "any", "weight": 8, "unique": false, "minSize": [4, 4], "numbered": true },
+          { "key": "office", "label": "SITE OFFICE", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 3] },
+          { "key": "security", "label": "SECURITY ROOM", "placement": "entrance", "weight": 1, "unique": true, "minSize": [2, 2], "doorType": "locked" },
+          { "key": "coldstore", "label": "COLD STORE", "placement": "any", "weight": 2, "unique": true, "minSize": [3, 3], "doorType": "locked" },
+          { "key": "bathroom", "label": "BATHROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2] },
+          { "key": "storage", "label": "STORAGE", "placement": "any", "weight": 4, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "stairwell", "label": "STAIRWELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "void", "label": "", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2] }
+        ]
+      },
+      "residential": {
+        "rooms": [
+          { "key": "living", "label": "LIVING ROOM", "placement": "entrance", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "kitchen", "label": "KITCHEN", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "bedroom", "label": "BEDROOM", "placement": "any", "weight": 6, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "bathroom", "label": "BATHROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "dining", "label": "DINING ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "study", "label": "STUDY", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] },
+          { "key": "stairwell", "label": "STAIRWELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "cellar", "label": "CELLAR", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 2], "doorType": "locked" },
+          { "key": "void", "label": "", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] }
+        ]
+      },
+      "tavern": {
+        "rooms": [
+          { "key": "common-room", "label": "COMMON ROOM", "placement": "entrance", "weight": 1, "unique": true, "minSize": [4, 4] },
+          { "key": "bar", "label": "BAR", "placement": "entrance", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "kitchen", "label": "KITCHEN", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "room", "label": "GUEST ROOM", "placement": "any", "weight": 6, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "cellar", "label": "CELLAR", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 2], "doorType": "locked" },
+          { "key": "stable", "label": "STABLE", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "courtyard", "label": "COURTYARD", "placement": "any", "weight": 1, "unique": true, "minSize": [4, 4] },
+          { "key": "stairwell", "label": "STAIRWELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "privy", "label": "PRIVY", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] },
+          { "key": "storeroom", "label": "STOREROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2] },
+          { "key": "void", "label": "", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] }
+        ]
+      },
+      "mansion": {
+        "rooms": [
+          { "key": "foyer", "label": "FOYER", "placement": "entrance", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "ballroom", "label": "BALLROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [5, 5] },
+          { "key": "dining", "label": "DINING ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 4] },
+          { "key": "library", "label": "LIBRARY", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "study", "label": "STUDY", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3], "doorType": "locked" },
+          { "key": "bedroom", "label": "BEDROOM", "placement": "any", "weight": 4, "unique": false, "minSize": [2, 3], "numbered": true },
+          { "key": "servant", "label": "SERVANTS QUARTERS", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "kitchen", "label": "KITCHEN", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "garden", "label": "GARDEN ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [4, 4] },
+          { "key": "armoury", "label": "ARMOURY", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3], "doorType": "locked" },
+          { "key": "stairwell", "label": "STAIRWELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "numbered": true },
+          { "key": "vault", "label": "VAULT", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 2], "doorType": "locked" },
+          { "key": "bathroom", "label": "BATHROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 2] },
+          { "key": "void", "label": "", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] }
+        ]
+      },
+      "horror": {
+        "rooms": [
+          { "key": "entrance-hall", "label": "ENTRANCE HALL", "placement": "entrance", "weight": 1, "unique": true, "minSize": [3, 3] },
+          { "key": "living-room", "label": "LIVING ROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [3, 3] },
+          { "key": "kitchen", "label": "KITCHEN", "placement": "any", "weight": 2, "unique": true, "minSize": [2, 3] },
+          { "key": "bedroom", "label": "BEDROOM", "placement": "any", "weight": 3, "unique": false, "minSize": [2, 3], "numbered": true },
+          { "key": "bathroom", "label": "BATHROOM", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] },
+          { "key": "basement", "label": "BASEMENT", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 4], "doorType": "locked" },
+          { "key": "surgery", "label": "SURGERY ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 4] },
+          { "key": "padded-cell", "label": "PADDED CELL", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2], "doorType": "locked", "numbered": true },
+          { "key": "boiler-room", "label": "BOILER ROOM", "placement": "any", "weight": 1, "unique": true, "minSize": [2, 3] },
+          { "key": "attic", "label": "ATTIC", "placement": "any", "weight": 1, "unique": true, "minSize": [3, 4] },
+          { "key": "collapse", "label": "COLLAPSED AREA", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] },
+          { "key": "void", "label": "", "placement": "any", "weight": 2, "unique": false, "minSize": [2, 2] }
+        ]
+      }
+    }
+  }
+}

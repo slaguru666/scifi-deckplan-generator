@@ -1,0 +1,31 @@
+{
+  "id": "scifi-deckplan-generator",
+  "title": "Sci-Fi & Fantasy Map Generator",
+  "description": "Procedurally generates sci-fi deck plans, fantasy dungeons, horror buildings, wilderness encounter maps, and tactical battlemaps as Foundry VTT scenes.",
+  "version": "0.9.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.350",
+    "maximum": "13"
+  },
+  "authors": [
+    {
+      "name": "Tim Evans"
+    }
+  ],
+  "esmodules": [
+    "module/scifi-deckplan-generator.mjs"
+  ],
+  "styles": [
+    "styles/scifi-deckplan-generator.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "manifest": "https://raw.githubusercontent.com/slaguru666/scifi-deckplan-generator/main/module.json",
+  "download": "https://github.com/slaguru666/scifi-deckplan-generator/releases/latest/download/scifi-deckplan-generator.zip"
+}
