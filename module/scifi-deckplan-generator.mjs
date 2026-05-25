@@ -745,8 +745,8 @@ class ScifiDeckPlanGeneratorApp extends HandlebarsApplicationMixin(ApplicationV2
       missionTemplate: "auto",
       encounterFaction: "auto",
       encounterDensity: "standard",
-      encounterPack: "",
-      roomPopulationPack: "",
+      encounterPack: "sla-industries-compendium.creatures",
+      roomPopulationPack: "sla-industries-compendium.creatures",
       populateRoomsFromCompendium: false,
       compactPrintMode: false,
       factionPreset: "none",
@@ -3826,7 +3826,7 @@ function buildAmbientLights(deck, formState) {
   const lights = [];
 
   if (config.ambient) {
-    lights.push({
+    const lightDoc = {
       x: Math.round((deck.columns * gs) / 2),
       y: Math.round((deck.rows * gs) / 2),
       hidden: false,
@@ -3839,13 +3839,17 @@ function buildAmbientLights(deck, formState) {
         walls: true,
         vision: false
       }
-    });
+    };
+    if (config.animation) {
+      lightDoc.config.animation = config.animation;
+    }
+    lights.push(lightDoc);
   }
 
   for (const room of deck.rooms) {
     if (!config.roomTypes?.includes(room.type)) continue;
     const radius = Math.min(room.width, room.height) * gs;
-    lights.push({
+    const roomLightDoc = {
       x: Math.round((room.x + room.width / 2) * gs),
       y: Math.round((room.y + room.height / 2) * gs),
       hidden: false,
@@ -3858,7 +3862,11 @@ function buildAmbientLights(deck, formState) {
         walls: true,
         vision: false
       }
-    });
+    };
+    if (config.roomAnimation ?? config.animation) {
+      roomLightDoc.config.animation = config.roomAnimation ?? config.animation;
+    }
+    lights.push(roomLightDoc);
   }
 
   return dedupeLights(lights);
@@ -6011,7 +6019,15 @@ function themePalette(theme) {
 const THEME_LIGHT_CONFIG = {
   steel: { ambient: true, color: "#a0c0ff", alpha: 0.4, luminosity: 0.5, roomTypes: ["bridge", "engineering", "reactor"] },
   industrial: { ambient: true, color: "#ffb060", alpha: 0.35, luminosity: 0.45, roomTypes: ["engineering", "reactor"] },
-  derelict: { ambient: true, color: "#404820", alpha: 0.25, luminosity: 0.3, roomTypes: [] },
+  derelict: {
+    ambient: true,
+    color: "#303515", // Sickly dim survival green-grey
+    alpha: 0.22,
+    luminosity: 0.22,
+    roomTypes: ["bridge", "engineering", "reactor", "medical", "comms"],
+    accentColor: "#cc2222", // Flickering red alarms in key rooms!
+    animation: { type: "flicker", speed: 9, intensity: 8 }
+  },
   "alien-organic": { ambient: true, color: "#20a040", alpha: 0.3, luminosity: 0.35, roomTypes: ["reactor"] },
   "clean-corporate": { ambient: true, color: "#ffffff", alpha: 0.6, luminosity: 0.7, roomTypes: [] },
   "alien-terminal": { ambient: true, color: "#00ff41", alpha: 0.18, luminosity: 0.22, roomTypes: ["bridge", "reactor", "engineering"] },
@@ -6019,16 +6035,47 @@ const THEME_LIGHT_CONFIG = {
   cave: { ambient: false, color: "#ff6010", alpha: 0.4, luminosity: 0.35, roomTypes: [] },
   wood: { ambient: false, color: "#ffb040", alpha: 0.55, luminosity: 0.45, roomTypes: ["shrine", "entrance"] },
   "wood-floor": { ambient: true, color: "#ffe8c0", alpha: 0.55, luminosity: 0.6, roomTypes: [] },
-  crypt: { ambient: false, color: "#4020a0", alpha: 0.3, luminosity: 0.25, roomTypes: ["ritual-room", "crypt"] },
+  crypt: { ambient: false, color: "#4020a0", alpha: 0.3, luminosity: 0.25, roomTypes: ["ritual-room", "crypt"], animation: { type: "pulse", speed: 3, intensity: 4 } },
   sewer: { ambient: false, color: "#204010", alpha: 0.25, luminosity: 0.3, roomTypes: [] },
   "concrete-office": { ambient: true, color: "#ffffff", alpha: 0.7, luminosity: 0.75, roomTypes: [] },
   brick: { ambient: true, color: "#ffe0c0", alpha: 0.5, luminosity: 0.55, roomTypes: ["common-room", "bar"] },
   carpet: { ambient: true, color: "#fff0e0", alpha: 0.6, luminosity: 0.65, roomTypes: [] },
   tile: { ambient: true, color: "#e0f0ff", alpha: 0.65, luminosity: 0.7, roomTypes: [] },
-  "derelict-house": { ambient: true, color: "#801010", alpha: 0.18, luminosity: 0.2, roomTypes: ["basement", "boiler-room"] },
-  asylum: { ambient: true, color: "#c0c0a0", alpha: 0.22, luminosity: 0.25, roomTypes: ["surgery", "padded-cell"] },
-  "haunted-manor": { ambient: false, color: "#4020a0", alpha: 0.15, luminosity: 0.18, roomTypes: ["library", "ballroom"] },
-  bloodbath: { ambient: false, color: "#800808", alpha: 0.15, luminosity: 0.15, roomTypes: [] },
+  "derelict-house": {
+    ambient: true,
+    color: "#601010", // Dim bloody red
+    alpha: 0.2,
+    luminosity: 0.2,
+    roomTypes: ["basement", "boiler-room"],
+    accentColor: "#cc2222",
+    animation: { type: "flicker", speed: 8, intensity: 8 }
+  },
+  asylum: {
+    ambient: true,
+    color: "#a0a080", // Clinical sickness
+    alpha: 0.24,
+    luminosity: 0.25,
+    roomTypes: ["surgery", "padded-cell", "medical"],
+    accentColor: "#ece8aa", // Clinical flickering fluorescent bulbs
+    animation: { type: "flicker", speed: 9, intensity: 6 }
+  },
+  "haunted-manor": {
+    ambient: false,
+    color: "#301540", // Sinister purple
+    alpha: 0.2,
+    luminosity: 0.2,
+    roomTypes: ["library", "ballroom"],
+    accentColor: "#502070",
+    animation: { type: "pulse", speed: 2, intensity: 6 }
+  },
+  bloodbath: {
+    ambient: false,
+    color: "#700505", // Blood wash
+    alpha: 0.35,
+    luminosity: 0.2,
+    roomTypes: [],
+    animation: { type: "pulse", speed: 3, intensity: 5 }
+  },
   forest: { ambient: true, color: "#b8d88a", alpha: 0.14, luminosity: 0.12, roomTypes: ["camp", "glade"] },
   jungle: { ambient: true, color: "#8cc26c", alpha: 0.12, luminosity: 0.1, roomTypes: ["nest", "ruins"] },
   plains: { ambient: true, color: "#f2df98", alpha: 0.08, luminosity: 0.08, roomTypes: ["camp", "crossing"] },
