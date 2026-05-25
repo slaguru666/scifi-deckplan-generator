@@ -1014,18 +1014,19 @@ async function deleteGeneratedDocuments(scene) {
     return;
   }
 
-  const { wallIds, drawingIds, tileIds, lightIds, tokenIds, noteIds } = collectGeneratedSceneIds(scene);
+  const ids = collectGeneratedSceneIds(scene);
+  const total = ids.wallIds.length + ids.drawingIds.length + ids.tileIds.length + ids.lightIds.length + ids.tokenIds.length + ids.noteIds.length + ids.soundIds.length + ids.regionIds.length;
 
-  if (!wallIds.length && !drawingIds.length && !tileIds.length && !lightIds.length && !tokenIds.length && !noteIds.length) {
+  if (total === 0) {
     ui.notifications.info("No generated elements found in this scene.");
     return;
   }
 
   await Dialog.confirm({
     title: "Delete Generated Elements",
-    content: `<p>Remove ${wallIds.length} walls, ${drawingIds.length} drawings, ${tileIds.length} tiles, ${lightIds.length} lights, ${tokenIds.length} encounter tokens, and ${noteIds.length} generated notes from <b>${escapeXml(scene.name)}</b>?</p>`,
+    content: `<p>Remove ${ids.wallIds.length} walls, ${ids.drawingIds.length} drawings, ${ids.tileIds.length} tiles, ${ids.lightIds.length} lights, ${ids.tokenIds.length} encounter tokens, ${ids.noteIds.length} generated notes, ${ids.soundIds.length} ambient sounds, and ${ids.regionIds.length} regions from <b>${escapeXml(scene.name)}</b>?</p>`,
     yes: async () => {
-      await deleteGeneratedDocumentsInternal(scene, { wallIds, drawingIds, tileIds, lightIds, tokenIds, noteIds });
+      await deleteGeneratedDocumentsInternal(scene, ids);
       ui.notifications.info(`Deleted generated elements from ${scene.name}.`);
     }
   });
@@ -1094,7 +1095,9 @@ function collectGeneratedSceneIds(scene) {
     tileIds: scene.tiles.contents.filter((tile) => tile.flags?.[MODULE_ID]?.generatedTile).map((tile) => tile.id),
     lightIds: scene.lights.contents.filter((light) => light.flags?.[MODULE_ID]?.generatedLight).map((light) => light.id),
     tokenIds: scene.tokens.contents.filter((token) => token.flags?.[MODULE_ID]?.generatedToken).map((token) => token.id),
-    noteIds: scene.notes.contents.filter((note) => note.flags?.[MODULE_ID]?.generatedNote).map((note) => note.id)
+    noteIds: scene.notes.contents.filter((note) => note.flags?.[MODULE_ID]?.generatedNote).map((note) => note.id),
+    soundIds: scene.sounds.contents.filter((sound) => sound.flags?.[MODULE_ID]?.generatedSound).map((sound) => sound.id),
+    regionIds: scene.regions?.contents?.filter((region) => region.flags?.[MODULE_ID]?.generatedRegion)?.map((region) => region.id) ?? []
   };
 }
 
@@ -1105,6 +1108,8 @@ async function deleteGeneratedDocumentsInternal(scene, ids = collectGeneratedSce
   if (ids.lightIds?.length) await scene.deleteEmbeddedDocuments("AmbientLight", ids.lightIds);
   if (ids.tokenIds?.length) await scene.deleteEmbeddedDocuments("Token", ids.tokenIds);
   if (ids.noteIds?.length) await scene.deleteEmbeddedDocuments("Note", ids.noteIds);
+  if (ids.soundIds?.length) await scene.deleteEmbeddedDocuments("AmbientSound", ids.soundIds);
+  if (ids.regionIds?.length) await scene.deleteEmbeddedDocuments("Region", ids.regionIds);
 }
 
 function normalizeFormState(raw = {}) {
@@ -3197,6 +3202,11 @@ async function populateSceneWithDeck(scene, deckPlan, deck, formState, connector
     await scene.createEmbeddedDocuments("Tile", [withGeneratedTileFlag(gmOverlayTile)]);
   }
 
+  const lootTiles = buildLootTiles(deck, formState);
+  if (lootTiles.length) {
+    await scene.createEmbeddedDocuments("Tile", lootTiles.map((t) => withGeneratedTileFlag(t)));
+  }
+
   const walls = deck.wallSegments.map((segment) => wallSegmentToDocument(segment, formState.gridSize));
   if (walls.length) {
     await scene.createEmbeddedDocuments("Wall", walls.map((wall) => withGeneratedWallFlag(wall)));
@@ -3222,6 +3232,11 @@ async function populateSceneWithDeck(scene, deckPlan, deck, formState, connector
     }
   }
 
+  const sounds = buildAmbientSounds(deck, formState);
+  if (sounds.length) {
+    await scene.createEmbeddedDocuments("AmbientSound", sounds.map((s) => withGeneratedSoundFlag(s)));
+  }
+
   if (formState.seedEncounters) {
     const tokens = await buildEncounterTokens(deck, formState);
     if (tokens.length) {
@@ -3238,7 +3253,10 @@ async function populateSceneWithDeck(scene, deckPlan, deck, formState, connector
 
   if (formState.placeRegions) {
     try {
-      const regions = buildRegionDocuments(deck, formState);
+      const regions = [
+        ...buildRegionDocuments(deck, formState, deckPlan),
+        ...buildHazardRegions(deck, formState)
+      ];
       if (regions.length) {
         await scene.createEmbeddedDocuments("Region", regions);
       }
@@ -3262,7 +3280,7 @@ async function populateSceneWithDeck(scene, deckPlan, deck, formState, connector
   applyGmOverlayVisibility(scene);
 }
 
-function buildRegionDocuments(deck, formState) {
+function buildRegionDocuments(deck, formState, deckPlan = null) {
   const gs = formState.gridSize;
   const regions = [];
   for (const room of deck.rooms) {
@@ -3285,6 +3303,64 @@ function buildRegionDocuments(deck, formState) {
       flags: { [MODULE_ID]: { generatedRegion: true, roomType: room.type } }
     });
   }
+
+  // Multi-Deck Elevator/Ladder/Stairs Teleporters (v13+)
+  if (deckPlan && deckPlan.decks.length > 1 && deck.deckConnectors?.length) {
+    for (const connector of deck.deckConnectors) {
+      const currentDeckIndex = deck.deckIndex;
+      let targetDeckIndex = null;
+      if (connector.type === "elevator") {
+        targetDeckIndex = currentDeckIndex < deckPlan.decks.length - 1 ? currentDeckIndex + 1 : currentDeckIndex - 1;
+      } else {
+        const labelUpper = String(connector.label || "").toUpperCase();
+        if (labelUpper.includes("UP")) {
+          targetDeckIndex = currentDeckIndex + 1;
+        } else if (labelUpper.includes("DOWN")) {
+          targetDeckIndex = currentDeckIndex - 1;
+        } else {
+          targetDeckIndex = currentDeckIndex < deckPlan.decks.length - 1 ? currentDeckIndex + 1 : currentDeckIndex - 1;
+        }
+      }
+
+      const targetDeck = deckPlan.decks[targetDeckIndex];
+      if (targetDeck && targetDeck.sceneId) {
+        const targetConnector = targetDeck.deckConnectors?.find((tc) => tc.label === connector.label) ?? targetDeck.deckConnectors?.[0];
+        if (targetConnector) {
+          const cx = connector.x * gs;
+          const cy = connector.y * gs;
+          const pts = [
+            cx, cy,
+            cx + gs, cy,
+            cx + gs, cy + gs,
+            cx, cy + gs
+          ];
+
+          const targetX = Math.round(targetConnector.x * gs + gs / 2);
+          const targetY = Math.round(targetConnector.y * gs + gs / 2);
+
+          regions.push({
+            name: `Transit: ${connector.label}`,
+            color: "#00e5ff",
+            visibility: 0,
+            shapes: [{ type: "polygon", points: pts }],
+            behaviors: [{
+              type: "teleportToken",
+              name: `Transit to ${targetDeck.deckName}`,
+              disabled: false,
+              destination: {
+                scene: targetDeck.sceneId,
+                x: targetX,
+                y: targetY,
+                elevation: 0
+              }
+            }],
+            flags: { [MODULE_ID]: { generatedRegion: true, isTransit: true } }
+          });
+        }
+      }
+    }
+  }
+
   return regions;
 }
 
@@ -5185,6 +5261,20 @@ function withGeneratedNoteFlag(note) {
   };
 }
 
+function withGeneratedSoundFlag(sound) {
+  return {
+    ...sound,
+    flags: {
+      ...(sound.flags ?? {}),
+      [MODULE_ID]: {
+        ...(sound.flags?.[MODULE_ID] ?? {}),
+        generatedSound: true
+      }
+    }
+  };
+}
+
+
 async function buildEncounterTokens(deck, formState) {
   const preset = resolveEncounterPreset(formState);
   const packActors = await getEncounterPackActors(formState.encounterPack);
@@ -6531,6 +6621,82 @@ function buildMissionBriefContent(deckPlan, formState) {
   const intro = typeof introSource === "string"
     ? introSource
     : introSource?.[formState.theme] ?? "The following location has been mapped from the best data currently available. Treat all positions as approximate until confirmed on the ground.";
+
+  if (chosenTemplate === "sla") {
+    const seedNum = hashSeed(deckPlan.seed);
+    const sectorCode = `SEC-${(seedNum % 900 + 100)}-${String.fromCharCode(65 + (seedNum % 26))}${String.fromCharCode(65 + ((seedNum >> 8) % 26))}`;
+    const threatLevel = {
+      light: { label: "GREEN", color: "#4cd964", desc: "MINIMAL RESISTANCE / LOW RISK" },
+      standard: { label: "YELLOW", color: "#ffcc00", desc: "ACTIVE THREATS / CAUTION REQUIRED" },
+      heavy: { label: "RED", color: "#ff3b30", desc: "WAR ZONE / IMMEDIATE DANGER" }
+    }[formState.encounterDensity] ?? { label: "AMBER", color: "#ff9500", desc: "UNSTABLE ENVIRONMENT" };
+
+    const payout = (15000 + (seedNum % 35000) + (deckPlan.decks.length * 10000)).toLocaleString();
+    const deckLines = deckPlan.decks.map((deck) => `
+      <div style="border-left: 3px solid ${threatLevel.color}; padding-left: 10px; margin-bottom: 12px;">
+        <span style="font-size: 1.1em; font-weight: bold; color: #fff;">${escapeXml(deck.deckName)}</span><br>
+        <span style="color: #aaa;">Status: ${deck.rooms.length} Compartments, ${deck.corridors.length} Transit Junctions</span><br>
+        <span style="color: #ff3b30; font-size: 0.9em;">Threat Profile: ${escapeXml(summarizeDeckThreats(deck))}</span>
+      </div>
+    `).join("");
+
+    return `
+      <div style="background-color: #0b0c10; color: #e5e9f0; font-family: 'Courier New', Courier, monospace; border: 3px solid #ff3b30; padding: 25px; border-radius: 8px; box-shadow: inset 0 0 20px rgba(255, 59, 48, 0.15), 0 4px 15px rgba(0,0,0,0.7); max-width: 800px; margin: 15px auto;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #ff3b30; padding-bottom: 15px; margin-bottom: 20px;">
+          <div>
+            <div style="font-size: 1.6em; font-weight: 900; color: #ff3b30; text-shadow: 0 0 6px rgba(255, 59, 48, 0.6); letter-spacing: 2px;">SLA INDUSTRIES</div>
+            <div style="font-size: 0.9em; color: #8892b0; letter-spacing: 1px;">BLUEPRINT NEWS (BPN) CONTRACT DIVISION</div>
+          </div>
+          <div style="text-align: right; font-family: sans-serif; border: 2px solid ${threatLevel.color}; color: ${threatLevel.color}; padding: 5px 12px; font-weight: bold; border-radius: 4px; text-transform: uppercase;">
+            THREAT LEVEL: ${threatLevel.label}
+          </div>
+        </div>
+
+        <!-- Metadata Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: rgba(255, 59, 48, 0.04); padding: 15px; border-radius: 4px; border: 1px solid rgba(255, 59, 48, 0.1);">
+          <div>
+            <span style="color: #ff3b30; font-weight: bold;">CONTRACT REF:</span> <span style="color: #fff;">BPN-${sectorCode}-${deckPlan.seed.slice(-4).toUpperCase()}</span>
+          </div>
+          <div>
+            <span style="color: #ff3b30; font-weight: bold;">OPERATIONAL ZONE:</span> <span style="color: #fff;">${sectorCode}</span>
+          </div>
+          <div>
+            <span style="color: #ff3b30; font-weight: bold;">ALLOTMENT REWARD:</span> <span style="color: #4cd964; font-weight: bold;">${payout}c</span> <span style="font-size: 0.8em; color: #888;">(Net)</span>
+          </div>
+          <div>
+            <span style="color: #ff3b30; font-weight: bold;">SPONSORING DEPT:</span> <span style="color: #fff;">Dept 7 (Enforcement)</span>
+          </div>
+        </div>
+
+        <!-- Briefing Content -->
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #ff3b30; border-bottom: 1px solid rgba(255,59,48,0.3); padding-bottom: 5px; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">1. Operational Mandate</h3>
+          <p style="line-height: 1.5; color: #d8dee9; font-size: 0.95em; text-align: justify; margin: 8px 0 15px 0;">
+            ${escapeXml(intro)} Operatives must secure the designated sectors and neutralize any flagged threats. 
+          </p>
+          <div style="background: rgba(255, 149, 0, 0.08); border-left: 4px solid #ff9500; padding: 12px; font-size: 0.9em; color: #ff9500; border-radius: 0 4px 4px 0; margin-bottom: 15px;">
+            <strong>MANDATORY INSTRUCTION:</strong> ${escapeXml(briefSpecialInstruction(formState, chosenTemplate))}
+          </div>
+        </div>
+
+        <!-- Deck Summary / Sector Maps -->
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #ff3b30; border-bottom: 1px solid rgba(255,59,48,0.3); padding-bottom: 5px; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">2. Sector Analysis & High-Risk Zones</h3>
+          <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 4px;">
+            ${deckLines}
+          </div>
+        </div>
+
+        <!-- Fine Print & Legal -->
+        <div style="border-top: 1px dashed rgba(255,59,48,0.3); padding-top: 15px; font-size: 0.8em; color: #64748b; text-align: justify; line-height: 1.4;">
+          <strong>NOTICE TO OPERATIVES:</strong> Contract fulfillment requires 100% confirmation of hazard containment and threat elimination. Sponsoring department accepts no responsibility for operational casualty, psychological trauma, or equipment loss. Unauthorized media interviews, recordings, or telemetry leaks to civilian networks are severe breaches of corporate security and subject to immediate asset liquidation. 
+          <div style="margin-top: 8px; text-align: center; color: #ff3b30; letter-spacing: 3px; font-weight: bold;">// OWN THE CITY. DO THE JOB. //</div>
+        </div>
+      </div>
+    `.replace(/\n\s+/g, "");
+  }
+
   const deckLines = deckPlan.decks.map((deck) => `<li><strong>${escapeXml(deck.deckName)}</strong>: ${deck.rooms.length} rooms, ${deck.corridors.length} corridors, ${escapeXml(summarizeDeckThreats(deck))}</li>`).join("");
   return `
     <h1>${escapeXml(deckPlan.shipName)} Mission Brief</h1>
@@ -6673,3 +6839,170 @@ function hexToRgb(color) {
   }
   return null;
 }
+
+function buildAmbientSounds(deck, formState) {
+  const gs = formState.gridSize;
+  const sounds = [];
+  const theme = formState.theme;
+
+  // 1. Theme-based base atmospheric hum for the whole scene (center-positioned)
+  const maxRadius = Math.max(deck.columns, deck.rows) * gs;
+  if (theme === "derelict") {
+    sounds.push({
+      x: Math.round((deck.columns * gs) / 2),
+      y: Math.round((deck.rows * gs) / 2),
+      radius: maxRadius,
+      path: "modules/scifi-deckplan-generator/assets/sounds/derelict-groan.mp3",
+      repeat: true,
+      volume: 0.35,
+      type: "global",
+      easing: true
+    });
+  } else if (theme === "alien-organic") {
+    sounds.push({
+      x: Math.round((deck.columns * gs) / 2),
+      y: Math.round((deck.rows * gs) / 2),
+      radius: maxRadius,
+      path: "modules/scifi-deckplan-generator/assets/sounds/organic-pulse.mp3",
+      repeat: true,
+      volume: 0.4,
+      type: "global",
+      easing: true
+    });
+  } else {
+    sounds.push({
+      x: Math.round((deck.columns * gs) / 2),
+      y: Math.round((deck.rows * gs) / 2),
+      radius: maxRadius,
+      path: "modules/scifi-deckplan-generator/assets/sounds/ship-hum.mp3",
+      repeat: true,
+      volume: 0.3,
+      type: "global",
+      easing: true
+    });
+  }
+
+  // 2. Specific room ambient sounds (reactor cores, engineering, bridge)
+  for (const room of deck.rooms) {
+    const rx = Math.round((room.x + room.width / 2) * gs);
+    const ry = Math.round((room.y + room.height / 2) * gs);
+    const rRadius = Math.min(room.width, room.height) * gs * 1.5;
+
+    if (room.type === "reactor" || room.type === "engineering") {
+      sounds.push({
+        x: rx,
+        y: ry,
+        radius: rRadius,
+        path: "modules/scifi-deckplan-generator/assets/sounds/reactor-hum.mp3",
+        repeat: true,
+        volume: 0.5,
+        type: "local",
+        easing: true
+      });
+    } else if (room.type === "bridge" || room.type === "comms") {
+      sounds.push({
+        x: rx,
+        y: ry,
+        radius: rRadius,
+        path: "modules/scifi-deckplan-generator/assets/sounds/static-crackle.mp3",
+        repeat: true,
+        volume: 0.35,
+        type: "local",
+        easing: true
+      });
+    }
+  }
+
+  return sounds;
+}
+
+function buildLootTiles(deck, formState) {
+  const gs = formState.gridSize;
+  const tiles = [];
+
+  for (const room of deck.rooms) {
+    // Cargo bays and storage rooms get crates/lockers
+    if (room.type === "storage" || room.type === "cargo") {
+      const crateX = Math.round((room.x + 1) * gs);
+      const crateY = Math.round((room.y + 1) * gs);
+      tiles.push({
+        x: crateX,
+        y: crateY,
+        width: gs,
+        height: gs,
+        texture: { src: "icons/containers/boxes/box-metal-grey.webp" },
+        locked: false,
+        flags: {
+          [MODULE_ID]: {
+            generatedTile: true,
+            lootType: "crate",
+            roomName: room.label
+          }
+        }
+      });
+    }
+    // Bridge, Comms, and Research Labs get computer terminals
+    else if (room.type === "bridge" || room.type === "comms" || room.type === "lab") {
+      const termX = Math.round((room.x + room.width - 2) * gs);
+      const termY = Math.round((room.y + 1) * gs);
+      tiles.push({
+        x: termX,
+        y: termY,
+        width: gs,
+        height: gs,
+        texture: { src: "icons/commodities/tech/sensor-blue.webp" },
+        locked: false,
+        flags: {
+          [MODULE_ID]: {
+            generatedTile: true,
+            lootType: "terminal",
+            roomName: room.label
+          }
+        }
+      });
+    }
+  }
+  return tiles;
+}
+
+function buildHazardRegions(deck, formState) {
+  const gs = formState.gridSize;
+  const regions = [];
+  const theme = formState.theme;
+
+  if (!["derelict", "sewer", "derelict-house"].includes(theme)) return [];
+
+  for (const room of deck.rooms) {
+    if (room.type === "storage" || room.type === "maintenance" || room.type === "reactor") {
+      const hx = Math.round((room.x + 1) * gs);
+      const hy = Math.round((room.y + 1) * gs);
+      const pts = [
+        hx, hy,
+        hx + gs * 2, hy,
+        hx + gs * 2, hy + gs * 2,
+        hx, hy + gs * 2
+      ];
+
+      const hazardType = theme === "sewer" ? "Sewage Outflow" : "Acidic Leak";
+      const hazardColor = theme === "sewer" ? "#5a4525" : "#00ff33"; // Green glow for acid, brown for sewage
+
+      regions.push({
+        name: `Hazard: ${hazardType}`,
+        color: hazardColor,
+        visibility: 0,
+        shapes: [{ type: "polygon", points: pts }],
+        behaviors: [
+          {
+            type: "adjustDarknessLevel",
+            name: "Hazard Gloom",
+            disabled: false,
+            darkness: 0.3 // v13 adjusts local darkness inside the region!
+          }
+        ],
+        flags: { [MODULE_ID]: { generatedRegion: true, isHazard: true, hazardType } }
+      });
+    }
+  }
+  return regions;
+}
+
